@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pixel Sorter</title>
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicon_v.png" />
+    <style>
+      @font-face {
+        font-family: spaceMono;
+        src: url(./assets/SpaceMono-Regular.ttf);
+      }
+      :root {
+        --main-color: #fac5ff;
+        --back-color: rgb(0, 0, 0);
+      }
+      a {
+        color: var(--main-color);
+      }
+      body {
+        overflow: hidden; /* Hide scrollbars */
+        background-color: var(--back-color);
+        color: tomato;
+        font-family: spaceMono, monospace, Cargan, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+          "OpenSans", "Helvetica Neue", sans-serif;
+      }
+      label {
+        display: block;
+      }
+
+      p {
+        font-weight: normal;
+        font-size: 1.5vw;
+        color: var(--main-color);
+      }
+
+      .howto {
+        font-size: 9.5pt;
+        color: whitesmoke;
+      }
+      button {
+        font-family: spaceMono, monospace, Cargan, -apple-system,
+          BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+          "OpenSans", "Helvetica Neue", sans-serif;
+
+        background-color: var(--main-color);
+        color: var(--back-color);
+        border: none;
+
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        font-weight: bold;
+        font-size: 6vh;
+        width: 8vh;
+        height: 8vh;
+        padding: none;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      textarea,
+      select,
+      meter,
+      progress {
+        width: 100%;
+      }
+      input[type="range"] {
+        width: 50%;
+      }
+      .uiRadio label {
+        display: inline;
+      }
+
+      .uiSlider {
+        display: flex;
+        flex-direction: row;
+        vertical-align: top;
+        align-content: flex-start;
+      }
+      .uiSlider :focus {
+        font-weight: bold;
+      }
+      .uiSlider input {
+        vertical-align: bottom;
+        order: 3;
+        margin-left: 0;
+        margin-right: 0.25em;
+      }
+      .uiSlider label {
+        order: 2;
+        margin-right: 0.25em;
+      }
+
+      .uiSlider > {
+        margin: auto;
+      }
+
+      .canvas-grid {
+        display: grid;
+        justify-content: center;
+        padding-top: 15vh;
+        grid-template-columns: 33% auto;
+        height: 50vh;
+      }
+      .title {
+        font-size: 9pt;
+        color: rgb(202, 202, 202);
+        padding-left: 2vh;
+      }
+
+      .title > b {
+        font-size: 13pt;
+      }
+
+      /* Tooltip text */
+      .tooltiptext {
+        font-size: 10pt;
+        visibility: hidden;
+        width: auto;
+        height: auto;
+        color: var(--back-color);
+        background-color: var(--main-color);
+        box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        padding: 10px;
+
+        /* Position the tooltip text - see examples below! */
+        position: absolute;
+        z-index: 1;
+      }
+
+      @keyframes taadaa {
+        0% {
+          opacity: 0;
+        }
+
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* Show the tooltip text when you mouse over the tooltip container */
+      .tooltip:hover .tooltiptext {
+        visibility: visible;
+        animation: taadaa 0.6s ease-in;
+      }
+
+      .controls {
+        padding-right: 2vw;
+      }
+      .ui-buttons {
+        display: flex;
+        padding-top: 0.5vh;
+        padding-bottom: 1vh;
+        margin-left: auto;
+      }
+
+      #ui * p {
+        margin: 1vh;
+        white-space: nowrap;
+        width: 100%;
+        margin-left: 0;
+        padding-top: 4px;
+      }
+
+      #ui-reset {
+        font-size: 4vh;
+        width: 16vh;
+        height: 8vh;
+        margin-left: 8px;
+      }
+
+      #ui-record {
+        font-size: 4vh;
+        width: 16.5vh;
+        height: 8vh;
+        margin-left: auto;
+        color: var(--back-color);
+      }
+
+      #ui-format {
+        height: 8vh;
+        margin-left: 8px;
+        color: var(--back-color);
+        font-size: 2.6vh;
+      }
+
+      #ui-reverse span {
+        top: -50px;
+      }
+
+      output > p {
+        color: var(--main-color);
+        font-style: italic;
+        width: 5ch;
+      }
+
+      output {
+        order: 2;
+        min-width: 7ch;
+      }
+
+      #ui-title {
+        grid-column: 1/-1;
+      }
+      #ui-stepSize {
+        grid-column: 1 / span 1;
+      }
+      #ui-randomType {
+        grid-column: 1/-1;
+      }
+      #ui-noiseDtx {
+        grid-column: 1 / span 1;
+      }
+      #ui-noiseDty {
+        grid-column: 2 / span 1;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      input {
+        background-color: #000000;
+        width: 100px;
+      }
+      input[type="range"] {
+        -webkit-appearance: none;
+
+        width: 100%;
+      }
+      input[type="range"]:focus {
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 12px;
+        cursor: pointer;
+        background: rgb(59, 59, 59);
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        height: 12px;
+        width: 16px;
+        background: var(--main-color);
+        cursor: pointer;
+        -webkit-appearance: none;
+      }
+      input[type="range"]:focus::-webkit-slider-runnable-track {
+        background: rgba(165, 165, 165, 0.801);
+      }
+      input[type="range"]::-moz-range-track {
+        width: 100%;
+        height: 12px;
+        cursor: pointer;
+        background: rgb(59, 59, 59);
+      }
+      input[type="range"]::-moz-range-thumb {
+        height: 12px;
+        width: 16px;
+        background: var(--main-color);
+        cursor: pointer;
+        -webkit-appearance: none;
+      }
+      input[type="range"]::-ms-track {
+        width: 100%;
+        height: 8.4px;
+        cursor: pointer;
+        background: transparent;
+        border-color: transparent;
+        border-width: 16px 0;
+        color: transparent;
+      }
+      input[type="range"]::-ms-fill-lower {
+        background: #ffffff;
+        border: 0.2px solid #010101;
+        box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+      .custom-file-upload {
+        display: inline-block;
+        height: auto;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .footer {
+        font-size: 7pt;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 1;
+        padding: 0.4rem;
+        color: slategray;
+        background-color: var(--back-color);
+        text-align: center;
+      }
+
+      .footer > a {
+        color: slategray;
+      }
+      .footer > a:visited {
+        color: rgb(39, 56, 75);
+      }
+
+      @media screen and (max-width: 1200px) {
+        body {
+          /* background-color: blue; */
+        }
+
+        .canvas-grid {
+          padding-top: 7vh;
+          padding-bottom: 7vh;
+        }
+
+        #ui-reverse {
+          font-size: 3vh;
+        }
+
+        #ui-reset,
+        #ui-record {
+          max-width: 14vh;
+          font-size: 2vh;
+        }
+      }
+    </style>
+    <script src="/p5.js"></script>
+    <!-- <script src="../addons/p5.sound.js"></script> -->
+    <script src="/CCapture.all.min.js"></script>
+    <script src="sketch.js"></script>
+  </head>
+
+  <body>
+    <p class="title"><b>pixelsorting with p5.js</b> <br /></p>
+
+    <main>
+      <div class="canvas-grid">
+        <div class="controls">
+          <form id="ui">
+            <div id="ui-threshold" class="uiSlider">
+              <p class="tooltip">
+                threshhold
+                <span class="tooltiptext"
+                  ><b>threshhold</b><br />
+                  how bright the difference between two pixels needs to be,
+                  <br />
+                  in order for them to be sorted <br />
+                  <b
+                    >Tip: think of this as your "play slider" the threshhold
+                    controls every other effect</b
+                  >
+                </span>
+              </p>
+
+              <output><p class="threshhold-output">0</p></output>
+              <input
+                type="range"
+                min="0"
+                max="255"
+                step="1"
+                value="255"
+                id="dtx"
+                name="dtx"
+              />
+            </div>
+          </form>
+
+          <form id="ui">
+            <div id="ui-offset" class="uiSlider">
+              <p class="tooltip">
+                offset
+                <span class="tooltiptext"
+                  ><b>offset</b><br />
+                  controls how many pixel will be skipped between the two pixels
+                  to be sorted
+                </span>
+              </p>
+
+              <output><p class="offset-output">0</p></output>
+              <input
+                type="range"
+                min="0"
+                max="500"
+                step="4"
+                value="0"
+                id="dtx"
+                name="dtx"
+              />
+            </div>
+          </form>
+
+          <form id="ui">
+            <div id="ui-chaos" class="uiSlider">
+              <p class="tooltip">
+                chaos
+                <span class="tooltiptext"
+                  ><b>chaos</b><br />
+                  adds an offset ignoring color channels. can decimate an image
+                  really quickly <br />
+                  <b>
+                    Tip: try using a smaller threshhold to not destroy the
+                    image<br />
+                    or set the chaos value to the max for "faster"
+                    pixelsorting</b
+                  >
+                </span>
+              </p>
+
+              <output><p class="chaos-output">0</p></output>
+              <input
+                type="range"
+                min="4"
+                max="20"
+                step="1"
+                value="4"
+                id="dtx"
+                name="dtx"
+              />
+            </div>
+          </form>
+
+          <form id="ui">
+            <div id="ui-separation" class="uiSlider">
+              <p class="tooltip">
+                separation
+                <span class="tooltiptext"
+                  ><b>separation</b><br />
+                  separates the rgb channels producing cool shift effect. doesnt
+                  always work but can add some nice colors <br />
+                  <b>
+                    Tip: set the threshhold to 0 and play with the separation</b
+                  ></span
+                >
+              </p>
+
+              <output><p class="separation-output">0</p></output>
+              <input
+                type="range"
+                min="4"
+                max="200"
+                step="1"
+                value="4"
+                id="dtx"
+                name="dtx"
+              />
+            </div>
+          </form>
+
+          <form id="ui" class="ui-buttons">
+            <button id="ui-reverse" type="button"><span>→</span></button>
+            <button id="ui-reset" type="button">reset</button>
+            <button id="ui-record" type="button">record</button>
+            <button id="ui-format" type="button"><span>png</span></button>
+          </form>
+
+          <div>
+            <p class="howto">
+              Drag and drop or click
+              <label for="file-upload" class="custom-file-upload btn">
+                → Upload
+              </label>
+              to upload an image. Play with the treshhold to start sorting. 2
+              Press left- and rightclick to change the sorting direction, or use
+              the arrowkeys.
+              <br />
+              <br />
+              To save an animation press the record button to start recording.
+              The animation will restart and will end when you press the button
+              again.
+            </p>
+            <input
+              type="file"
+              id="file-upload"
+              accept="image/png, image/jpeg"
+            />
+          </div>
+        </div>
+        <div id="canvas"></div>
+      </div>
+    </main>
+    <!-- <aside class="controls"></aside> -->
+  </body>
+</html>
